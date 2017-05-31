@@ -10,8 +10,8 @@
 			});
 		}
 		
-		getImageTag(srcPath, style) {
-			return $('<img>', {src: srcPath}).css(style).prop('outerHTML');
+		getImageTag(srcPath, style, alt = '5000兆円') {
+			return $('<img>', {src: srcPath, alt: alt}).css(style).prop('outerHTML');
 		}
 		
 		getStyle(height) {
@@ -21,10 +21,10 @@
 			};
 		}
 		
-		get5000(height) {
+		get5000(height, alt) {
 			let style = this.getStyle(height);
 			let path = chrome.extension.getURL('images/5000-trillion-yen.png');
-			return this.getImageTag(path, style);
+			return this.getImageTag(path, style, alt);
 		}
 		
 		start() {
@@ -67,7 +67,10 @@
 					height = $(this).css(heightkey);
 				}
 
-				html = html.replace(/(5000|５０００)兆円/g, self.get5000(height));
+				html = html.replace(/(5000|５０００)兆円/g, (text) => {
+					return self.get5000(height, text);
+				});
+				
 				return html;
 			});
 			
