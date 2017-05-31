@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "5000 trillion yen Converter",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "It is a plug-in that converts '5000 trillion yen' to 5000 trillion yen",
+    "description": "The description of the application"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "5000兆円コンバーター",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "5000兆円を5000兆円に置き換えます。5000兆円な気分になれます。たぶん",
+    "description": "The description of the application"
+  }
+}
