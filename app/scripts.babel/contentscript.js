@@ -13,9 +13,25 @@
 			this.enable5000 = false;
 			this.enableMoriogai = false;
 			this.enableHosii = false;
+
+			this._regex5000 = new RegExp('((5000|５０００)兆円)(?!"|\')', 'g');
+			this._regexHosii = new RegExp('(ほ|欲)しい(!|！)(?!"|\')', 'g');
+			this._regexMoriogai = new RegExp('森鴎外(?!"|\')', 'g');
 		}
 
-		defaultSettings() {
+		get regex5000() {
+			return this._regex5000;
+		}
+
+		get regexHosii() {
+			return this._regexHosii;
+		}
+
+		get regexMoriogai() {
+			return this._regexMoriogai;
+		}
+
+		get defaultSettings() {
 			return {
 				enable5000: true,
 				enableMoriogai: true,
@@ -50,7 +66,7 @@
 		}
 
 		ready() {
-			let defaults = this.defaultSettings();
+			let defaults = this.defaultSettings;
 			this.loadSettings(defaults, () => {
 				this.process();
 			});
@@ -99,13 +115,13 @@
 		}
 
 		isMatchText(text) {
-			if (this.enable5000 && text.match(/((5000|５０００)兆円)/g)) {
+			if (this.enable5000 && text.match(this.regex5000)) {
 				return true;
 			}
-			if (this.enableMoriogai && text.match(/森鴎外/g)) {
+			if (this.enableMoriogai && text.match(this.regexMoriogai)) {
 				return true;
 			}
-			if (this.enableHosii && text.match(/(ほ|欲)しい(!|！)/g)) {
+			if (this.enableHosii && text.match(this.regexHosii)) {
 				return true;
 			}
 			return false;
@@ -128,6 +144,7 @@
 				return self.isMatchText(text);
 			}).html(function() {
 				let html = $(this).html();
+
 				//	利用できそうなCSSの値を拾ってくる
 				let heightkey = ['line-height', 'font-size'].find((element) => {
 					const value = $(this).css(element);
@@ -138,20 +155,26 @@
 					height = $(this).css(heightkey);
 				}
 
+				/**
+				 * 正規表現について
+				 * 現状、ネストしているタグの中身を置き換えちゃったりする問題が発生しているので
+				 * ダブルクォーテーション or シングルクォーテーションで囲ってある文字列を弾くという
+				 * アレな対策でなんとかしてる状態です。なにかいい解決方法はないか…
+				 */
 				if (self.enable5000) {
-					html = html.replace(/(5000|５０００)兆円/g, (text) => {
+					html = html.replace(self.regex5000, (text) => {
 						return self.get5000(height, text);
 					});
 				}
 
 				if (self.enableMoriogai) {
-					html = html.replace(/森鴎外/g, (text) => {
+					html = html.replace(self.regexMoriogai, (text) => {
 						return self.getMoriogai(height, text);
 					});
 				}
 
 				if (self.enableHosii) {
-					html = html.replace(/(ほ|欲)しい(!|！)/g, (text) => {
+					html = html.replace(self.regexHosii, (text) => {
 						return self.getHosii(height, text);
 					});
 				}
