@@ -8,6 +8,47 @@
 					this.process();
 				}
 			});
+
+			//	設定
+			this.enable5000 = false;
+			this.enableMoriogai = false;
+		}
+
+		defaultSettings() {
+			return {
+				enable5000: true,
+				enableMoriogai: true
+			}
+		}
+
+		loadSettings(defaults, callback = null) {
+			chrome.storage.local.get(defaults, (items) => {
+				if (items.enable5000 && items.enableMoriogai) {
+					this.enable5000 = items.enable5000;
+					this.enableMoriogai = items.enableMoriogai;
+				}
+				if (callback) {
+					callback();
+				}
+			});
+
+			chrome.storage.onChanged.addListener((changes, namespace) => {
+				if (namespace === 'local') {
+					if (changes.enable5000) {
+						this.enable5000 = changes.enable5000.newValue;
+					}
+					if (changes.enableMoriogai) {
+						this.enableMoriogai = changes.enableMoriogai.newValue;
+					}
+				}
+			});
+		}
+
+		ready() {
+			let defaults = this.defaultSettings();
+			this.loadSettings(defaults, () => {
+				this.process();
+			});
 		}
 		
 		getImageTag(srcPath, style, alt = '5000兆円') {
@@ -26,11 +67,13 @@
 			let path = chrome.extension.getURL('images/5000-trillion-yen.png');
 			return this.getImageTag(path, style, alt);
 		}
-		
-		start() {
-			this.process();
+
+		getMoriogai(height, alt) {
+			let style = this.getStyle(height);
+			let path = chrome.extension.getURL('images/5000-trillion-yen.png');
+			return this.getImageTag(path, style, alt);
 		}
-		
+				
 		observe() {
 			let options = {
 				characterData: true,
@@ -45,6 +88,10 @@
 		}
 		
 		process() {
+			if (!this.enable5000 && !this.enableMoriogai) {
+				//	disabled
+				return;
+			}
 			//	Disconnect Observer
 			this.disconnect();
 			
@@ -52,9 +99,10 @@
 			 *	Replace Process
 			 */
 			let self = this;
+			console.log('process');
 			$('p,a,span').filter(function() {
 				let text = $(this).text();
-				return text.match(/((5000|５０００)兆円)/g);
+				return text.match(/((5000|５０００)兆円|森鴎外)/g);
 			}).html(function() {
 				let html = $(this).html();
 				//	利用できそうなCSSの値を拾ってくる
@@ -67,10 +115,18 @@
 					height = $(this).css(heightkey);
 				}
 
-				html = html.replace(/(5000|５０００)兆円/g, (text) => {
-					return self.get5000(height, text);
-				});
-				
+				if (this.enable5000) {
+					html = html.replace(/(5000|５０００)兆円/g, (text) => {
+						return self.get5000(height, text);
+					});
+				}
+
+				if (this.enableMoriogai) {
+					html = html.replace(/森鴎外/g, (text) => {
+						return self.getMoriogai(height, text);
+					});
+				}
+
 				return html;
 			});
 			
@@ -81,5 +137,5 @@
 	
 
 	const core = new Core;
-	core.start();
+	core.ready();
 })();

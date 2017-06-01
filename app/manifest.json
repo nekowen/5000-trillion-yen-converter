@@ -14,9 +14,14 @@
       "scripts/chromereload.js"
     ]
   },
+  "options_ui": {
+      "page": "options.html",
+      "open_in_tab": false
+  },
   "permissions": [
     "http://*/*",
-    "https://*/*"
+    "https://*/*",
+    "storage"
   ],
   "content_scripts": [
     {
@@ -26,7 +31,8 @@
       ],
       "js": [
         "bower_components/jquery/dist/jquery.slim.min.js",
-        "scripts/contentscript.js"
+        "scripts/contentscript.js",
+        "scripts/options.js"
       ],
       "run_at": "document_end",
       "all_frames": false
