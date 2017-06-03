@@ -14,9 +14,9 @@
 			this.enableMoriogai = false;
 			this.enableHosii = false;
 
-			this._regex5000 = new RegExp('((5000|５０００)兆円)(?!"|\')', 'g');
-			this._regexHosii = new RegExp('(ほ|欲)しい(!|！)(?!"|\')', 'g');
-			this._regexMoriogai = new RegExp('森鴎外(?!"|\')', 'g');
+			this._regex5000 = new RegExp('(5000|５０００)兆円', 'g');
+			this._regexHosii = new RegExp('(ほ|欲)しい(!|！)', 'g');
+			this._regexMoriogai = new RegExp('森鴎外', 'g');
 		}
 
 		get regex5000() {
@@ -139,15 +139,15 @@
 			 *	置き換え処理
 			 */
 			let self = this;
-			$('p,a,span').filter(function() {
+			$('p,a,span').contents().filter(function() {
 				let text = $(this).text();
-				return self.isMatchText(text);
+				return this.nodeType === 3 && self.isMatchText(text);
 			}).html(function() {
-				let html = $(this).html();
+				let html = $(this);
 
 				//	利用できそうなCSSの値を拾ってくる
 				let heightkey = ['line-height', 'font-size'].find((element) => {
-					const value = $(this).css(element);
+					const value = $(this).closest().css(element);
 					return !Number.isNaN(parseInt(value));
 				});
 				let height = '22px'; //	Default
@@ -155,31 +155,27 @@
 					height = $(this).css(heightkey);
 				}
 
-				/**
-				 * 正規表現について
-				 * 現状、ネストしているタグの中身を置き換えちゃったりする問題が発生しているので
-				 * ダブルクォーテーション or シングルクォーテーションで囲ってある文字列を弾くという
-				 * アレな対策でなんとかしてる状態です。なにかいい解決方法はないか…
-				 */
+				var replacedStr = html.text();
+
 				if (self.enable5000) {
-					html = html.replace(self.regex5000, (text) => {
-						return self.get5000(height, text);
+					replacedStr = replacedStr.replace(self.regex5000, (match) => {
+						return self.get5000(height, match);
 					});
 				}
 
 				if (self.enableMoriogai) {
-					html = html.replace(self.regexMoriogai, (text) => {
-						return self.getMoriogai(height, text);
+					replacedStr = replacedStr.replace(self.regexMoriogai, (match) => {
+						return self.getMoriogai(height, match);
 					});
 				}
 
 				if (self.enableHosii) {
-					html = html.replace(self.regexHosii, (text) => {
-						return self.getHosii(height, text);
+					replacedStr = replacedStr.replace(self.regexHosii, (match) => {
+						return self.getHosii(height, match);
 					});
 				}
 
-				return html;
+				return html.replaceWith(replacedStr);
 			});
 			
 			//	Reconnect
