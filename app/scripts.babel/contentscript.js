@@ -147,12 +147,12 @@
 
 				//	利用できそうなCSSの値を拾ってくる
 				let heightkey = ['line-height', 'font-size'].find((element) => {
-					const value = $(this).closest().css(element);
+					const value = $(this).parent().css(element);
 					return !Number.isNaN(parseInt(value));
 				});
 				let height = '22px'; //	Default
 				if (heightkey !== undefined) {
-					height = $(this).css(heightkey);
+					height = $(this).parent().css(heightkey);
 				}
 
 				var replacedStr = html.text();
