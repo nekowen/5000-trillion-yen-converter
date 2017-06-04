@@ -40,7 +40,8 @@
   ],
   "web_accessible_resources": [
     "images/5000-trillion-yen.png",
-    "images/morimori.png",
+    "images/moriogai.png",
+    "images/moriogai_old.png",
     "images/hosii.png"
   ]
 }

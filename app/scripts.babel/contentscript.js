@@ -16,7 +16,7 @@
 
 			this._regex5000 = new RegExp('(5000|５０００)兆円', 'g');
 			this._regexHosii = new RegExp('(ほ|欲)しい(!|！)', 'g');
-			this._regexMoriogai = new RegExp('森鴎外', 'g');
+			this._regexMoriogai = new RegExp('森(鴎|鷗)外', 'g');
 		}
 
 		get regex5000() {
@@ -89,9 +89,10 @@
 			return this.getImageTag(path, style, alt);
 		}
 
-		getMoriogai(height, alt) {
+		getMoriogai(height, alt, oldCharacter = false) {
 			let style = this.getStyle(height);
-			let path = chrome.extension.getURL('images/morimori.png');
+			let fileName = (oldCharacter ? 'moriogai_old.png' : 'moriogai.png');
+			let path = chrome.extension.getURL('images/' + fileName);
 			return this.getImageTag(path, style, alt);
 		}
 
@@ -165,7 +166,8 @@
 
 				if (self.enableMoriogai) {
 					replacedStr = replacedStr.replace(self.regexMoriogai, (match) => {
-						return self.getMoriogai(height, match);
+						const isOldCharacter = (match === '森鷗外');
+						return self.getMoriogai(height, match, isOldCharacter);
 					});
 				}
 
