@@ -139,7 +139,7 @@
 			 *	置き換え処理
 			 */
 			let self = this;
-			$('div,p,b,a,span,em').contents().filter(function() {
+			$('div,p,b,a,span,em,strong').contents().filter(function() {
 				let text = $(this).text();
 				return this.nodeType === 3 && self.isMatchText(text);
 			}).html(function() {
