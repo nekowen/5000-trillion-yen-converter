@@ -4,9 +4,18 @@
 	class Core {
 		constructor() {
 			this.observer = new MutationObserver((records) => {
-				if (records.length != 0) {
-					this.process();
+				if (records.length === 0) {
+					return;
 				}
+
+				const addedNodes = records.reduce((prev, current) => {
+					return prev.concat(Array.from(current.addedNodes));
+				}, []);
+
+				if (addedNodes.length === 0) {
+					return;
+				}
+				this.process($(addedNodes));
 			});
 
 			//	設定
@@ -17,6 +26,8 @@
 			this._regex5000 = new RegExp('(5000|５０００)兆円', 'g');
 			this._regexHosii = new RegExp('(ほ|欲)しい(!|！)', 'g');
 			this._regexMoriogai = new RegExp('森(鴎|鷗)外', 'g');
+			this._defaultFilterTags = ['div', 'p', 'b', 'a', 'span', 'em', 'strong'];
+			this._defaultSelector = this._defaultFilterTags.join(',');
 		}
 
 		get regex5000() {
@@ -29,6 +40,14 @@
 
 		get regexMoriogai() {
 			return this._regexMoriogai;
+		}
+
+		get defaultFilterTags() {
+			return this._defaultFilterTags;
+		}
+
+		get defaultSelector() {
+			return this._defaultSelector;
 		}
 
 		get defaultSettings() {
@@ -128,11 +147,12 @@
 			return false;
 		}
 		
-		process() {
+		process(elements = null) {
 			if (!this.enable5000 && !this.enableMoriogai && !this.enableHosii) {
 				//	disabled
 				return;
 			}
+
 			//	Disconnect Observer
 			this.disconnect();
 			
@@ -140,7 +160,17 @@
 			 *	置き換え処理
 			 */
 			let self = this;
-			$('div,p,b,a,span,em,strong').contents().filter(function() {
+
+			//	置き換えする対象が指定されていない場合はデフォルトのセレクタを使用
+			//	指定されている場合は要素に対してfind
+			if (elements === null) {
+				//	Default
+				elements = $(this.defaultSelector);
+			} else {
+				elements = elements.find(this.defaultSelector);
+			}
+
+			elements.contents().filter(function() {
 				let text = $(this).text();
 				return this.nodeType === 3 && self.isMatchText(text);
 			}).html(function() {
