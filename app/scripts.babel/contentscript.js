@@ -146,6 +146,24 @@
 			}
 			return false;
 		}
+
+		replaceHTMLchars(text) {
+			//	https://qiita.com/saekis/items/c2b41cd8940923863791
+			if(typeof text !== 'string') {
+				return text;
+			}
+
+			return text.replace(/[&'`"<>]/g, function(match) {
+				return {
+					'&': '&amp;',
+					'\'': '&#x27;',
+					'`': '&#x60;',
+					'"': '&quot;',
+					'<': '&lt;',
+					'>': '&gt;',
+				}[match]
+			});
+		}
 		
 		process(elements = null) {
 			if (!this.enable5000 && !this.enableMoriogai && !this.enableHosii) {
@@ -186,8 +204,7 @@
 					height = $(this).parent().css(heightkey);
 				}
 
-				var replacedStr = html.text();
-
+				var replacedStr = self.replaceHTMLchars(html.text());
 				if (self.enable5000) {
 					replacedStr = replacedStr.replace(self.regex5000, (match) => {
 						return self.get5000(height, match);
